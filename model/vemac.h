@@ -35,12 +35,12 @@ protected:
 //  /**
 //   * The PHY instance that sits under this MAC layer.
 //   */
-//  Ptr<LoraPhy> m_phy;
+  Ptr<LoraPhy> m_phy;
 //
 //  /**
 //   * The device this MAC layer is installed on.
 //   */
-//  Ptr<NetDevice> m_device;
+  Ptr<NetDevice> m_device;
 
 
 };

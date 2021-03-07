@@ -1,9 +1,11 @@
 
 #include "vemac-lora.h"
+#include "ns3/vemac.h"
 #include "ns3/end-device-lora-phy.h"
 #include "ns3/simulator.h"
 #include "ns3/log.h"
 #include <algorithm>
+//#include "ns3/class-a-end-device-lorawan-mac.h"
 
 using namespace  ns3;
 
@@ -19,7 +21,6 @@ VeMacLora::VeMacLora ()
 {
   NS_LOG_FUNCTION (this);
 
-//  slots = {'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o', 'o'};
   slots[0] = 'o';
   slots[1] = 'o';
   slots[2] = 'o';
@@ -30,7 +31,10 @@ VeMacLora::VeMacLora ()
   slots[7] = 'o';
   slots[8] = 'o';
   slots[9] = 'o';
-  slots[10] = 'o';
+
+
+
+
 
 }
 
@@ -71,6 +75,13 @@ VeMacLora::ScheduleTdma (const uint32_t slotNum)
 
   NS_LOG_DEBUG ("Number of slots allotted for this node is: " << numOfSlotsAllotted);
   Time transmissionSlot = Seconds(0.1 * numOfSlotsAllotted);
+
+  NS_LOG_DEBUG(transmissionSlot << "seconds");
+
+
+
+//  Simulator::Schedule(transmissionSlot, VeMac::m_phy-> Send, packet);
+
 
 }
 
