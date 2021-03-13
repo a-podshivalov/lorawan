@@ -9,6 +9,8 @@
 #include "ns3/random-variable-stream.h"
 #include "ns3/lora-device-address.h"
 #include "ns3/traced-value.h"
+#include "ns3/packet.h"
+#include "ns3/vemac-lora-header.h"
 
 using namespace  ns3;
 
@@ -25,6 +27,8 @@ public:
   ~VeMacLora ();
 
   void ScheduleTdma (const uint32_t slotNum);
+  virtual void Receive (Ptr<Packet const> packet);
+  virtual void DoSend (Ptr<Packet> packet);
 
   /*
    * Слоты в кадре
@@ -36,6 +40,7 @@ public:
    * The address of this device.
    */
 //  LoraDeviceAddress m_id; //Здеcь был m_address
+  uint8_t vemac_id;
 
 private:
   char slots[10];

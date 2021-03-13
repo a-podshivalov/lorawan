@@ -14,6 +14,17 @@ namespace lorawan {
 class VeMacLoraHeader : public Header
 {
 public:
+  static TypeId GetTypeId (void);
+
+  VeMacLoraHeader ();
+  ~VeMacLoraHeader ();
+
+  virtual void Print (std::ostream &os) const;
+  virtual uint32_t GetSerializedSize (void) const;
+  virtual TypeId GetInstanceTypeId (void) const;
+
+
+
 
   virtual void Serialize (Buffer::Iterator start) const;
 
@@ -29,18 +40,19 @@ public:
    * Print the header in a human readable format.
    *
    * \param os The std::ostream on which to print the header.
+   *
    */
-
+  uint8_t m_slots_id[11];
 private:
 
   /**
      * The VeMac ID.
      */
-    uint8_t m_id;
+//    uint8_t m_id;
   /**
-   * VeMac ID  других устройств
+   * VeMac ID  других устройств,  [10] - это будет VemacID самого устройства
    */
-  uint8_t m_slots_id[10];
+
 };
 }
 

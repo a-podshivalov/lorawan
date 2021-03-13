@@ -32,7 +32,9 @@ VeMacLora::VeMacLora ()
   slots[8] = 'o';
   slots[9] = 'o';
 
-
+  //Инициализируем свой собственный VeMac ID
+  srand( time (0) );
+  vemac_id = rand() % 256;
 
 
 
@@ -48,40 +50,40 @@ VeMacLora::~VeMacLora ()
 ////////////////////////
 
 
+
 void
-VeMacLora::ScheduleTdma (const uint32_t slotNum)
-{
-  NS_LOG_FUNCTION (slotNum);
-  if (slotNum > 9) {
-      NS_LOG_WARN("No MAC in slots");
-  }
+VeMacLora::DoSend (Ptr<Packet> packet) {
+  NS_LOG_FUNCTION ("Starting Send");
+}
 
-  uint32_t numOfSlotsAllotted = 1;
-  while (1) {
-      if (slotNum + numOfSlotsAllotted < 10) {
-          if (slots[slotNum] == slots[slotNum + numOfSlotsAllotted]) {
-              numOfSlotsAllotted ++;
-          }
-          else
-            {
-              break;
-            }
-      }
-      else
-        {
+void
+VeMacLora::Receive (Ptr<Packet const> packet) {
+  NS_LOG_FUNCTION (this << packet);
+
+  // Work on a copy of the packet
+    Ptr<Packet> packetCopy = packet->Copy ();
+
+  // Получаем заголовок пакета
+  VeMacLoraHeader mHdr;
+  packetCopy->RemoveHeader(mHdr);
+  NS_LOG_DEBUG("Mac Header: " << mHdr);
+
+  //Получаем номер ячейки, в которое запишем Vemac ID того, кого слышали
+  uint8_t slot_id = (Simulator::Now().GetSeconds() - floor(Simulator::Now().GetSeconds())) * 10;
+
+  //Записываем в найденную ячейку ID того, кого слышали
+  mHdr.m_slots_id[slot_id] = mHdr.m_slots_id[10];
+
+  for (int i =0; i<11; i++)
+    {
+      if (mHdr.m_slots_id[i] == 0)
+          {
+          mHdr.m_slots_id[10] = vemac_id;
+          packetCopy->AddHeader(mHdr);
+          Simulator::Schedule(Seconds(1+floor(Simulator::Now().GetSeconds()))+Seconds(0.1)*i, &VeMacLora::DoSend, this, packetCopy);
           break;
-        }
-  }
-
-  NS_LOG_DEBUG ("Number of slots allotted for this node is: " << numOfSlotsAllotted);
-  Time transmissionSlot = Seconds(0.1 * numOfSlotsAllotted);
-
-  NS_LOG_DEBUG(transmissionSlot << "seconds");
-
-
-
-//  Simulator::Schedule(transmissionSlot, VeMac::m_phy-> Send, packet);
-
+          }
+    }
 
 }
 
