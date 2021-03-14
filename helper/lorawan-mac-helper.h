@@ -96,7 +96,7 @@ public:
    * \param device the device within which this MAC will be created.
    * \returns a newly-created LorawanMac object.
    */
-  Ptr<LorawanMac> Create (Ptr<Node> node, Ptr<NetDevice> device) const;
+  virtual Ptr<LorawanMac> Create (Ptr<Node> node, Ptr<NetDevice> device) const;
 
   /**
    * Set up the end device's data rates

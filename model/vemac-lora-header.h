@@ -23,9 +23,6 @@ public:
   virtual uint32_t GetSerializedSize (void) const;
   virtual TypeId GetInstanceTypeId (void) const;
 
-
-
-
   virtual void Serialize (Buffer::Iterator start) const;
 
   /**
@@ -42,7 +39,7 @@ public:
    * \param os The std::ostream on which to print the header.
    *
    */
-  uint8_t m_slots_id[11];
+  uint8_t m_slots_id[10];
 private:
 
   /**

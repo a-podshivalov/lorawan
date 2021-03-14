@@ -1,9 +1,7 @@
+#ifndef VEMAC_LORA_H
+#define VEMAC_LORA_H
 
-
-#ifndef END_DEVICE_LORAWAN_MAC_H
-#define END_DEVICE_LORAWAN_MAC_H
-
-#include "ns3/vemac.h"
+#include "ns3/lorawan-mac.h"
 #include "ns3/lorawan-mac-header.h"
 #include "ns3/lora-frame-header.h"
 #include "ns3/random-variable-stream.h"
@@ -12,42 +10,47 @@
 #include "ns3/packet.h"
 #include "ns3/vemac-lora-header.h"
 
-using namespace  ns3;
-
+namespace ns3 {
+namespace lorawan {
 
 /**
- * Class representing the MAC layer of a LoRaWAN device.
+ * Class representing the MAC layer of a VeMAC-LoRa device.
  */
-class VeMacLora : public Object
+class VeMacLora : public LorawanMac
 {
 public:
   static TypeId GetTypeId (void);
 
   VeMacLora ();
-  ~VeMacLora ();
+  virtual ~VeMacLora ();
 
-  void ScheduleTdma (const uint32_t slotNum);
   virtual void Receive (Ptr<Packet const> packet);
-  virtual void DoSend (Ptr<Packet> packet);
+  virtual void Send (Ptr<Packet> packet);
+  virtual void FailedReception (Ptr<Packet const> packet);
+  virtual void TxFinished (Ptr<const Packet> packet);
 
+  void TimeSlotOver();
+  void DoSend (Ptr<Packet> packet);
+
+  void SetId (uint8_t id);
+  uint8_t GetId (void) const;
+
+  static int GetCurrentTimeSlot(void);
+private:
   /*
    * Слоты в кадре
    */
-
-
+  char m_slots[10];
 
   /**
-   * The address of this device.
+   * The VeMac ID of this device.
    */
-//  LoraDeviceAddress m_id; //Здеcь был m_address
-  uint8_t vemac_id;
+  uint8_t m_id;
 
-private:
-  char slots[10];
+  bool m_receivedOk;
+  Ptr<Packet> m_packet;
 
 };
+}}
 
-
-
-
-#endif /* END_DEVICE_LORAWAN_MAC_H */
+#endif /* VEMAC_LORA_H */

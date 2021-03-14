@@ -5,9 +5,8 @@
  */
 
 #include "ns3/end-device-lora-phy.h"
-#include "ns3/gateway-lora-phy.h"
-#include "ns3/class-a-end-device-lorawan-mac.h"
-#include "ns3/gateway-lorawan-mac.h"
+#include "ns3/vemac-lora.h"
+#include "ns3/vemac-helper.h"
 #include "ns3/simulator.h"
 #include "ns3/log.h"
 #include "ns3/pointer.h"
@@ -37,7 +36,7 @@
 using namespace ns3;
 using namespace lorawan;
 
-NS_LOG_COMPONENT_DEFINE ("VemacExample");
+NS_LOG_COMPONENT_DEFINE ("VeMacExample");
 
 int
 main (int argc, char *argv[])
@@ -46,18 +45,20 @@ main (int argc, char *argv[])
   cmd.Parse (argc, argv);
 
   // Set up logging
-  LogComponentEnable ("VemacExample", LOG_LEVEL_ALL);
-  LogComponentEnable ("LoraChannel", LOG_LEVEL_INFO);
-  LogComponentEnable ("LoraPhy", LOG_LEVEL_ALL);
-  LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
-  LogComponentEnable ("LoraInterferenceHelper", LOG_LEVEL_ALL);
-  LogComponentEnable ("LogicalLoraChannelHelper", LOG_LEVEL_ALL);
-  LogComponentEnable ("LogicalLoraChannel", LOG_LEVEL_ALL);
+  //LogComponentEnable ("VeMacExample", LOG_LEVEL_ALL);
+  LogComponentEnable ("VeMacLora", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LoraChannel", LOG_LEVEL_INFO);
+  //LogComponentEnable ("LoraPhy", LOG_LEVEL_ALL);
+  //LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LoraInterferenceHelper", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LogicalLoraChannelHelper", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LogicalLoraChannel", LOG_LEVEL_ALL);
  
-  LogComponentEnable ("LoraPhyHelper", LOG_LEVEL_ALL);
-  LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
-  LogComponentEnable ("LorawanMacHeader", LOG_LEVEL_ALL);
-  LogComponentEnable ("LoraFrameHeader", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LoraPhyHelper", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LorawanMacHeader", LOG_LEVEL_ALL);
+  //LogComponentEnable ("LoraFrameHeader", LOG_LEVEL_ALL);
+  //LogComponentEnable ("PeriodicSender", LOG_LEVEL_ALL);
   // LogComponentEnable ("LoraPacketTracker", LOG_LEVEL_ALL);
   LogComponentEnableAll (LOG_PREFIX_FUNC);
   LogComponentEnableAll (LOG_PREFIX_NODE);
@@ -86,7 +87,7 @@ main (int argc, char *argv[])
   phyHelper.SetChannel (channel);
 
   // Create the LorawanMacHelper
-  LorawanMacHelper macHelper = LorawanMacHelper ();
+  VeMacHelper macHelper = VeMacHelper ();
 
   // Create the LoraHelper
   LoraHelper helper = LoraHelper ();
@@ -100,15 +101,13 @@ main (int argc, char *argv[])
 
 
   // Create the LoraNetDevices of the end devices
-  // uint8_t nwkId = 54;
-  // uint32_t nwkAddr = 1864;
-  // Ptr<LoraDeviceAddressGenerator> addrGen =
-  //     CreateObject<LoraDeviceAddressGenerator> (nwkId, nwkAddr);
+  uint8_t nwkId = 54;
+  uint32_t nwkAddr = 1864;
+  Ptr<LoraDeviceAddressGenerator> addrGen =
+    CreateObject<LoraDeviceAddressGenerator> (nwkId, nwkAddr);
 
   // // Create the LoraNetDevices of the end devices
-  // macHelper.SetAddressGenerator (addrGen);
   phyHelper.SetDeviceType (LoraPhyHelper::ED);
-  macHelper.SetDeviceType (LorawanMacHelper::ED_A);
   helper.Install (phyHelper, macHelper, nodes);
 
   //   // Connect trace sources
@@ -162,26 +161,14 @@ main (int argc, char *argv[])
 
   Time appStopTime = Seconds (6000);
   PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
-  appHelper.SetPeriod (Seconds (10));
-  appHelper.SetPacketSize (23);
+  appHelper.SetPeriod (Seconds (1));
+  appHelper.SetPacketSize (33);
   Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
       "Min", DoubleValue (0), "Max", DoubleValue (10));
-  ApplicationContainer appContainer = appHelper.Install (nodes.Get(1));
+  ApplicationContainer appContainer = appHelper.Install (nodes);
 
   appContainer.Start (Seconds (0));
   appContainer.Stop (appStopTime);
-
-////////////////
-  // Counter //
-  ////////////////
-
-  // Ptr<PacketCounterCalculator> totalRx =
-  // CreateObject<PacketCounterCalculator>();
-  // totalRx->SetKey ("wifi-rx-frames");
-  // totalRx->SetContext ("node[1]");
-  // Config::Connect ("/NodeList/1/DeviceList/*/$ns3::LoraNetDevice/Mac/",
-  //                  MakeCallback (&PacketCounterCalculator::PacketUpdate,
-  //                                totalRx));
 
   ////////////////
   // Simulation //

@@ -12,7 +12,7 @@ NS_LOG_COMPONENT_DEFINE ("VeMacLoraHeader");
 
 VeMacLoraHeader::VeMacLoraHeader ()
 {
-   for (int i =0; i < 11; i++)
+   for (int i = 0; i < 10; i++)
      {
        m_slots_id[i] = 0;
      }
@@ -44,7 +44,7 @@ VeMacLoraHeader::GetSerializedSize (void) const
 {
   NS_LOG_FUNCTION_NOARGS ();
 
-  return 1;       // This header only consists in 8 bits ??????
+  return sizeof(m_slots_id)/sizeof(m_slots_id[0]);
 }
 
 void
@@ -53,9 +53,6 @@ VeMacLoraHeader::Print (std::ostream &os) const
   os << "MyVeMacID=" << unsigned(m_slots_id[10]) << std::endl;
 }
 
-
-
-
 void
 VeMacLoraHeader::Serialize (Buffer::Iterator start) const
 {
@@ -63,11 +60,10 @@ VeMacLoraHeader::Serialize (Buffer::Iterator start) const
   Buffer::Iterator i = start;
 //  i.WriteU8 (m_id);
 
-  for (int j = 0; j < 11; j++)
+  for (int j = 0; j < 10; j++)
     {
       i.WriteU8 (m_slots_id[j]);
     }
-
 }
 
 uint32_t
@@ -80,17 +76,14 @@ VeMacLoraHeader::Deserialize (Buffer::Iterator start)
 //  byteRead += 1;
 
   //block of 10 bytes
-  for (int j = 0; j < 11; j++)
+  for (int j = 0; j < 10; j++)
     {
       m_slots_id [j] = start.ReadU8();
       byteRead++;
     }
 
-
-
   return byteRead;
 }
-
 
 }
 }
