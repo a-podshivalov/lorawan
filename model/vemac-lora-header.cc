@@ -50,7 +50,12 @@ VeMacLoraHeader::GetSerializedSize (void) const
 void
 VeMacLoraHeader::Print (std::ostream &os) const
 {
-  os << "MyVeMacID=" << unsigned(m_slots_id[10]) << std::endl;
+  os << "VeMacID=" << unsigned(m_slots_id[9]) << std::endl;
+  os << "TimeSlots: ";
+  for (int i = 0; i < 9; i++)
+    {
+      os << unsigned(m_slots_id[i]) << " ";
+    }
 }
 
 void
