@@ -97,7 +97,7 @@ main (int argc, char *argv[])
   *  Create End Devices  *
   ************************/
   NodeContainer nodes;
-  nodes.Create (2);
+  nodes.Create (10);
 
 
   // Create the LoraNetDevices of the end devices
@@ -174,7 +174,7 @@ main (int argc, char *argv[])
   // Simulation //
   ////////////////
 
-  Simulator::Stop (Hours (1));
+  Simulator::Stop (Seconds(20));
 
   NS_LOG_INFO ("Running simulation...");
   Simulator::Run ();
