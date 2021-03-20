@@ -30,6 +30,7 @@ public:
   virtual void TxFinished (Ptr<const Packet> packet);
   void ApplyNecessaryOptions (VeMacLoraHeader &macHeader);
   int GetRandomNumber();
+  void AcquireFreeTimeSlot();
 
   void TimeSlotOver();
   void DoSend (Ptr<Packet> packet);

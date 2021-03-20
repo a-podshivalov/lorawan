@@ -54,7 +54,7 @@ VeMacLora::VeMacLora () : m_receivedOk(false)
 
 
 
-  Simulator::Schedule(Seconds(1), &VeMacLora::TimeSlotOver, this);
+  Simulator::Schedule(Seconds(1.1), &VeMacLora::TimeSlotOver, this);
 }
 
 VeMacLora::~VeMacLora ()
@@ -78,6 +78,34 @@ int VeMacLora::GetRandomNumber()
   return distribution(generator);
 }
 
+void VeMacLora::AcquireFreeTimeSlot()
+{
+  if (m_time_slot == -1  && GetCurrentTimeSlot() == 0 )
+      {
+        for (int i =0; i < 10; i++)
+          {
+            if (m_slots[i] == 255)
+              {
+                m_slot_free = true;
+                break;
+              }
+          }
+      }
+
+
+    while (m_time_slot == -1 && GetCurrentTimeSlot() == 0 && m_slot_free)
+      {
+        int out_time_slot = GetRandomNumber();
+        if (m_slots[out_time_slot] == 255)
+          {
+            m_slots[out_time_slot] = m_id;
+            m_time_slot = out_time_slot;
+            NS_LOG_INFO((int)m_id << " assign time slot № " << m_time_slot);
+            break;
+          }
+      }
+}
+
 void VeMacLora::TimeSlotOver()
 {
   // Schedule a next time slot event
@@ -85,6 +113,10 @@ void VeMacLora::TimeSlotOver()
 
 //  NS_LOG_DEBUG("Scheduling time slots");
   int current_time_slot = GetCurrentTimeSlot();
+  int past_time_slot = (current_time_slot == 0 && Simulator::Now().GetSeconds() >=2 ? 9 : current_time_slot-1);
+
+
+  AcquireFreeTimeSlot();
 
   // TODO: if it is our selected time slot - DoSend
   // TODO: write an actual condition
@@ -93,46 +125,13 @@ void VeMacLora::TimeSlotOver()
   }
 
   // else - check whether a packet was received
-  if(!m_slots_received[current_time_slot])
+  if(!m_slots_received[past_time_slot] && past_time_slot != m_time_slot)
     {
-      if ( current_time_slot != m_time_slot)
-        {
-          m_slots[current_time_slot] = 255;
-        }
-      else if (m_time_slot == -1)
-        {
-          m_slots[current_time_slot] = 255;
-        }
-
+          m_slots[past_time_slot] = 255;
       }
 
-  if (m_time_slot == -1  && current_time_slot == 9 )
-    {
-      for (int i =0; i < 10; i++)
-        {
-          if (m_slots[i] == 255)
-            {
-              m_slot_free = true;
-              break;
-            }
-        }
-    }
-
-
-  while (m_time_slot == -1 && current_time_slot == 9 && m_slot_free)
-    {
-      int out_time_slot = GetRandomNumber();
-      if (m_slots[out_time_slot] == 255)
-        {
-          m_slots[out_time_slot] = m_id;
-          m_time_slot = out_time_slot;
-          NS_LOG_INFO((int)m_id << " assign time slot № " << m_time_slot);
-          break;
-        }
-    }
-
 //  m_receivedOk = false;
-  m_slots_received[current_time_slot] = false;
+  m_slots_received[past_time_slot] = false;
   m_slot_free = false;
 
   // Switch the PHY to the channel so that it will listen here for downlink
@@ -200,10 +199,7 @@ VeMacLora::Receive (Ptr<Packet const> packet) {
   //Получаем номер ячейки, в которое запишем Vemac ID того, кого слышали
   uint8_t slot_id = GetCurrentTimeSlot();
 
-
-//  mHdr.m_slots_id[slot_id] = mHdr.m_slots_id[10];
-
-  //Обнаружена коллизия, освобождаем занятый нами временную ячейку
+  //Обнаружена коллизия, освобождаем занятую нами временную ячейку
   if (slot_id == m_time_slot)
     {
       NS_LOG_INFO("Collision detection");
