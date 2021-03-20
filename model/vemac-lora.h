@@ -28,6 +28,8 @@ public:
   virtual void Send (Ptr<Packet> packet);
   virtual void FailedReception (Ptr<Packet const> packet);
   virtual void TxFinished (Ptr<const Packet> packet);
+  void ApplyNecessaryOptions (VeMacLoraHeader &macHeader);
+  int GetRandomNumber();
 
   void TimeSlotOver();
   void DoSend (Ptr<Packet> packet);
@@ -40,7 +42,7 @@ private:
   /*
    * Слоты в кадре
    */
-  char m_slots[10];
+  int m_slots[10];
 
   /**
    * The VeMac ID of this device.
@@ -49,6 +51,13 @@ private:
 
   bool m_receivedOk;
   Ptr<Packet> m_packet;
+  //Чтобы смотреть, в каких временных слотах был приём или не был
+  bool m_slots_received[10];
+
+  //Чтобы смотреть в конце каждой секунды, есть ли свободный временной слот
+  bool m_slot_free;
+  //Чтобы запоминать номер временного слота, который мы заняли
+  int m_time_slot;
 
 };
 }}
