@@ -34,6 +34,7 @@ public:
 
   void TimeSlotOver();
   void DoSend (Ptr<Packet> packet);
+  bool CheckCollision (VeMacLoraHeader* mHdr);
 
   void SetId (uint8_t id);
   uint8_t GetId (void) const;
@@ -59,6 +60,9 @@ private:
   bool m_slot_free;
   //Чтобы запоминать номер временного слота, который мы заняли
   int m_time_slot;
+
+  int slot_listened_for_check;
+  int slot_listened_for_initial_assign;
 
 };
 }}
