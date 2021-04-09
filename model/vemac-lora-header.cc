@@ -50,9 +50,9 @@ VeMacLoraHeader::GetSerializedSize (void) const
 void
 VeMacLoraHeader::Print (std::ostream &os) const
 {
-  os << "VeMacID=" << unsigned(m_slots_id[9]) << std::endl;
+  os << "VeMacID=" << unsigned(m_slots_id[13]) << std::endl;
   os << "TimeSlots: ";
-  for (int i = 0; i < 9; i++)
+  for (int i = 0; i < 14; i++)
     {
       os << unsigned(m_slots_id[i]) << " ";
     }
@@ -65,7 +65,7 @@ VeMacLoraHeader::Serialize (Buffer::Iterator start) const
   Buffer::Iterator i = start;
 //  i.WriteU8 (m_id);
 
-  for (int j = 0; j < 10; j++)
+  for (int j = 0; j < 14; j++)
     {
       i.WriteU8 (m_slots_id[j]);
     }
@@ -81,7 +81,7 @@ VeMacLoraHeader::Deserialize (Buffer::Iterator start)
 //  byteRead += 1;
 
   //block of 10 bytes
-  for (int j = 0; j < 10; j++)
+  for (int j = 0; j < 14; j++)
     {
       m_slots_id [j] = start.ReadU8();
       byteRead++;

@@ -39,7 +39,7 @@ public:
    * \param os The std::ostream on which to print the header.
    *
    */
-  uint8_t m_slots_id[10];
+  uint8_t m_slots_id[14];
 private:
 
   /**

@@ -34,17 +34,22 @@ public:
 
   void TimeSlotOver();
   void DoSend (Ptr<Packet> packet);
-  bool CheckCollision (VeMacLoraHeader* mHdr);
+  bool CheckCollision (int* slots_copy);
 
   void SetId (uint8_t id);
   uint8_t GetId (void) const;
 
   static int GetCurrentTimeSlot(void);
+
+  void CopySlots (VeMacLoraHeader* mHdr, int* slots_copy);
+
+
+  void SaveOurNxTx (int* slots_copy, int slot_id);
 private:
   /*
    * Слоты в кадре
    */
-  int m_slots[10];
+  int m_slots[9];
 
   /**
    * The VeMac ID of this device.
@@ -63,6 +68,11 @@ private:
 
   int slot_listened_for_check;
   int slot_listened_for_initial_assign;
+
+  uint16_t fcnt;
+  int lcnt;
+
+  bool m_send;
 
 };
 }}
