@@ -1,5 +1,3 @@
-
-
 #ifndef VEMAC_LORA_HEADER_H
 #define VEMAC_LORA_HEADER_H
 
@@ -14,16 +12,19 @@ namespace lorawan {
 class VeMacLoraHeader : public Header
 {
 public:
-  static TypeId GetTypeId (void);
+  static TypeId
+  GetTypeId (void);
 
   VeMacLoraHeader ();
   ~VeMacLoraHeader ();
 
-  virtual void Print (std::ostream &os) const;
-  virtual uint32_t GetSerializedSize (void) const;
-  virtual TypeId GetInstanceTypeId (void) const;
+  virtual uint32_t
+  GetSerializedSize (void) const;
+  virtual TypeId
+  GetInstanceTypeId (void) const;
 
-  virtual void Serialize (Buffer::Iterator start) const;
+  virtual void
+  Serialize (Buffer::Iterator start) const;
 
   /**
    * Deserialize the header.
@@ -31,7 +32,8 @@ public:
    * \param start A pointer to the buffer we need to deserialize.
    * \return The number of consumed bytes.
    */
-  virtual uint32_t Deserialize (Buffer::Iterator start);
+  virtual uint32_t
+  Deserialize (Buffer::Iterator start);
 
   /**
    * Print the header in a human readable format.
@@ -39,17 +41,16 @@ public:
    * \param os The std::ostream on which to print the header.
    *
    */
-  uint8_t m_slots_id[14];
-private:
+  virtual void
+  Print (std::ostream &os) const;
 
-  /**
-     * The VeMac ID.
-     */
-//    uint8_t m_id;
   /**
    * VeMac ID  других устройств,  [10] - это будет VemacID самого устройства
    */
+  uint8_t m_slots_id[10];
+  uint16_t m_fcnt;
 
+private:
 };
 }
 
