@@ -36,24 +36,26 @@
 using namespace ns3;
 using namespace lorawan;
 
-NS_LOG_COMPONENT_DEFINE ("VeMacExample");
+NS_LOG_COMPONENT_DEFINE("VeMacExample");
 
 int
 main (int argc, char *argv[])
 {
+  RngSeedManager::SetSeed (time (NULL));
+
   CommandLine cmd;
   cmd.Parse (argc, argv);
 
   // Set up logging
   //LogComponentEnable ("VeMacExample", LOG_LEVEL_ALL);
-  LogComponentEnable ("VeMacLora", LOG_LEVEL_ALL);
+  LogComponentEnable ("VeMacLora", LOG_LEVEL_DEBUG);
   //LogComponentEnable ("LoraChannel", LOG_LEVEL_INFO);
   //LogComponentEnable ("LoraPhy", LOG_LEVEL_ALL);
   //LogComponentEnable ("EndDeviceLoraPhy", LOG_LEVEL_ALL);
   //LogComponentEnable ("LoraInterferenceHelper", LOG_LEVEL_ALL);
   //LogComponentEnable ("LogicalLoraChannelHelper", LOG_LEVEL_ALL);
   //LogComponentEnable ("LogicalLoraChannel", LOG_LEVEL_ALL);
- 
+
   //LogComponentEnable ("LoraPhyHelper", LOG_LEVEL_ALL);
   //LogComponentEnable ("LorawanMacHelper", LOG_LEVEL_ALL);
   //LogComponentEnable ("LorawanMacHeader", LOG_LEVEL_ALL);
@@ -63,9 +65,9 @@ main (int argc, char *argv[])
   LogComponentEnableAll (LOG_PREFIX_FUNC);
   LogComponentEnableAll (LOG_PREFIX_NODE);
   LogComponentEnableAll (LOG_PREFIX_TIME);
-   // LogComponentEnable ("LoraHelper", LOG_LEVEL_ALL);
+  // LogComponentEnable ("LoraHelper", LOG_LEVEL_ALL);
 
-    /************************
+  /************************
    *  Create the channel  *
    ************************/
 
@@ -79,10 +81,9 @@ main (int argc, char *argv[])
   Ptr<LoraChannel> channel = CreateObject<LoraChannel> (loss, delay);
 
   /************************
-  *  Create the helpers  *
-  ************************/
+   *  Create the helpers  *
+   ************************/
   // Create the LoraPhyHelper
-        
   LoraPhyHelper phyHelper = LoraPhyHelper ();
   phyHelper.SetChannel (channel);
 
@@ -91,20 +92,19 @@ main (int argc, char *argv[])
 
   // Create the LoraHelper
   LoraHelper helper = LoraHelper ();
-  helper.EnablePacketTracking (); 
+  helper.EnablePacketTracking ();
 
-   /************************
-  *  Create End Devices  *
-  ************************/
+  /************************
+   *  Create End Devices  *
+   ************************/
   NodeContainer nodes;
   nodes.Create (10);
-
 
   // Create the LoraNetDevices of the end devices
   uint8_t nwkId = 54;
   uint32_t nwkAddr = 1864;
-  Ptr<LoraDeviceAddressGenerator> addrGen =
-    CreateObject<LoraDeviceAddressGenerator> (nwkId, nwkAddr);
+  Ptr<LoraDeviceAddressGenerator> addrGen = CreateObject<LoraDeviceAddressGenerator> (
+      nwkId, nwkAddr);
 
   // // Create the LoraNetDevices of the end devices
   phyHelper.SetDeviceType (LoraPhyHelper::ED);
@@ -119,43 +119,41 @@ main (int argc, char *argv[])
   //   }
   // Now end devices are connected to the channel
 
-   /************************
+  /************************
    *  Mobility  *
    ************************/
   MobilityHelper mobility;
-  mobility.SetPositionAllocator ("ns3::GridPositionAllocator",
-                                   "MinX", DoubleValue (0.0),
-                                   "MinY", DoubleValue (0.0),
-                                   "DeltaX", DoubleValue (20.0),
-                                   "DeltaY", DoubleValue (10.0),
-                                   "GridWidth", UintegerValue (3),
-                                   "LayoutType", StringValue ("RowFirst"));
-  
+  mobility.SetPositionAllocator ("ns3::GridPositionAllocator", "MinX", DoubleValue (0.0),
+                                 "MinY", DoubleValue (0.0), "DeltaX", DoubleValue (20.0),
+                                 "DeltaY", DoubleValue (10.0), "GridWidth",
+                                 UintegerValue (3), "LayoutType",
+                                 StringValue ("RowFirst"));
+
   //mobility.SetMobilityModel("ns3::WaypointMobilityModel");
-  mobility.Install(nodes);
-/*
+  mobility.Install (nodes);
+  /*
    Ptr<WaypointMobilityModel> ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(1)->GetObject<MobilityModel>());
-  //circle
-  float time = 0.0; //for waypoint
-  while (time < 200) {
+   //circle
+   float time = 0.0; //for waypoint
+   while (time < 200) {
    //Первая половина окружности
-    ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(0, 0,0)));
-    ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(-1000, -2236.068,0)));
-    ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++), Vector(-2000, -2828.427, 0)));
-    ueWaypointMobility->AddWaypoint (Waypoint (Seconds (time++),Vector (-3000, -3000, 0)));
-    ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-4000, -2828.427, 0)));
-    ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-5000, -2236.068, 0)));
-    ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-6000, 0, 0)));
-    //Вторая половина окружности
-    ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(-5000, 2236.068,0)));
-    ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(-4000, 2828.428, 0)));
-    ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++), Vector(-3000, 3000, 0)));
-    ueWaypointMobility->AddWaypoint (Waypoint (Seconds (time++),Vector (-2000, 2828.427, 0)));
-    ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-1000, 2236.068, 0)));
-    ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (0, 0, 0)));
-  }
-*/
-/*********************************************
+   ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(0, 0,0)));
+   ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(-1000, -2236.068,0)));
+   ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++), Vector(-2000, -2828.427, 0)));
+   ueWaypointMobility->AddWaypoint (Waypoint (Seconds (time++),Vector (-3000, -3000, 0)));
+   ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-4000, -2828.427, 0)));
+   ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-5000, -2236.068, 0)));
+   ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-6000, 0, 0)));
+   //Вторая половина окружности
+   ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(-5000, 2236.068,0)));
+   ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++),Vector(-4000, 2828.428, 0)));
+   ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time++), Vector(-3000, 3000, 0)));
+   ueWaypointMobility->AddWaypoint (Waypoint (Seconds (time++),Vector (-2000, 2828.427, 0)));
+   ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (-1000, 2236.068, 0)));
+   ueWaypointMobility->AddWaypoint(Waypoint (Seconds (time++),Vector (0, 0, 0)));
+   }
+   */
+  /*********************************************
    *  Install applications on the end devices  *
    *********************************************/
 
@@ -174,9 +172,9 @@ main (int argc, char *argv[])
   // Simulation //
   ////////////////
 
-  Simulator::Stop (Seconds(120));
+  Simulator::Stop (Seconds (120));
 
-  NS_LOG_INFO ("Running simulation...");
+  NS_LOG_INFO("Running simulation...");
   Simulator::Run ();
 
   Simulator::Destroy ();
@@ -184,10 +182,11 @@ main (int argc, char *argv[])
   ///////////////////////////
   // Print results to file //
   ///////////////////////////
-  NS_LOG_INFO ("Computing performance metrics...");
+  NS_LOG_INFO("Computing performance metrics...");
 
   LoraPacketTracker &tracker = helper.GetPacketTracker ();
-  std::cout << tracker.CountMacPacketsGlobally (Seconds (0), appStopTime + Hours (1)) << std::endl;
+  std::cout << tracker.CountMacPacketsGlobally (Seconds (0), appStopTime + Hours (1))
+                << std::endl;
 
   return 0;
 }
