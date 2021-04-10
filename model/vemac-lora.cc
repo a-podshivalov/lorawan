@@ -15,11 +15,11 @@ VeMacLora::GetTypeId (void)
 {
   static TypeId tid = TypeId ("ns3::VeMacLora").SetParent<LorawanMac> ().SetGroupName (
       "lorawan")
-      /*.AddAttribute ("Id", "VeMac ID of this device",
+  /*.AddAttribute ("Id", "VeMac ID of this device",
    0,
    MakeUintegerAccessor(&VeMacLora::GetId, &VeMacLora::SetId),
    MakeUintegerChecker<uint8_t>(0, 255))*/
-      .AddConstructor<VeMacLora> ();
+  .AddConstructor<VeMacLora> ();
   return tid;
 }
 
@@ -60,7 +60,7 @@ VeMacLora::AcquireFreeTimeSlot ()
   int free_slots = 0;
   for (int i = 0; i < 10; i++)
     {
-      if (!m_slots_received[i])
+      if (m_slots[i] == 255)
         {
           free_slots++;
         }
@@ -72,7 +72,7 @@ VeMacLora::AcquireFreeTimeSlot ()
 
       for (int i = 0; i < 10; i++)
         {
-          if (!m_slots_received[i])
+          if (m_slots[i] == 255)
             {
               if (free_slots-- == 0)
                 {
@@ -166,7 +166,8 @@ VeMacLora::DoSend (Ptr<Packet> packet)
   // Compute packet duration
   Time duration = m_phy->GetOnAirTime (packet, params);
 
-  NS_LOG_INFO("PacketToSend: " << packet << " Duration: " << duration.GetMilliSeconds() << " ms");
+  NS_LOG_INFO(
+      "PacketToSend: " << packet << " Duration: " << duration.GetMilliSeconds() << " ms");
   m_phy->Send (packet, params, 869.000, 14);
 
   m_transmitted = true;
@@ -244,7 +245,8 @@ VeMacLora::Receive (Ptr<Packet const> packet)
         }
     }
 
-  NS_LOG_DEBUG("I am " << +m_id <<" I Heard: " << m_slots[0]<< " " << m_slots[1]<< " " << m_slots[2] << " " << m_slots[3] << " " << m_slots[4] << " " << m_slots[5] << " " << m_slots[6] << " " << m_slots[7] << " " << m_slots[8] << " " << m_slots[9]);
+  NS_LOG_DEBUG(
+      "I am " << +m_id <<" I Heard: " << m_slots[0]<< " " << m_slots[1]<< " " << m_slots[2] << " " << m_slots[3] << " " << m_slots[4] << " " << m_slots[5] << " " << m_slots[6] << " " << m_slots[7] << " " << m_slots[8] << " " << m_slots[9]);
 }
 
 void
