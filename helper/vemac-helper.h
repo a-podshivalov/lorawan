@@ -9,6 +9,7 @@
 #include "ns3/vemac-lora.h"
 #include "ns3/node-container.h"
 #include "ns3/random-variable-stream.h"
+#include "ns3/vemac-tracker-helper.h"
 
 namespace ns3 {
 namespace lorawan {
@@ -49,10 +50,13 @@ public:
    */
   virtual Ptr<LorawanMac> Create (Ptr<Node> node, Ptr<NetDevice> device) const;
 
+  VemacTrackerHelper* m_tracker = 0;
+
 private:
 
   ObjectFactory m_mac;
   Ptr<VeMacIdGenerator> addrGen;
+
 };
 
 } // namespace lorawan

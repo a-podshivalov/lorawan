@@ -25,3 +25,15 @@ def build(bld):
     
     obj = bld.create_ns3_program('vemac-example', ['lorawan'])
     obj.source = 'vemac-example.cc'
+    
+    obj = bld.create_ns3_program('vemac-circle', ['lorawan'])
+    obj.source = 'vemac-circle.cc'
+    
+    obj = bld.create_ns3_program('vemac-circle-accident', ['lorawan'])
+    obj.source = 'vemac-circle-accident.cc'
+    
+    obj = bld.create_ns3_program('vemac-circle-accident_2', ['lorawan'])
+    obj.source = 'vemac-circle-accident_2.cc'
+    
+    obj = bld.create_ns3_program('vemac-circle-hidden', ['lorawan'])
+    obj.source = 'vemac-circle-hidden.cc'

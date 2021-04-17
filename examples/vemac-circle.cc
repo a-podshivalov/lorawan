@@ -32,6 +32,13 @@
 #include "ns3/network-module.h"
 #include "ns3/stats-module.h"
 #include "ns3/periodic-sender-helper.h"
+#include <cmath>
+#include "ns3/random-variable-stream.h"
+
+#define PI 3.14159265
+#define TIME 5
+#define RADIUS 5000
+
 
 using namespace ns3;
 using namespace lorawan;
@@ -42,6 +49,8 @@ int
 main (int argc, char *argv[])
 {
   RngSeedManager::SetSeed (time (NULL));
+  Ptr<UniformRandomVariable> rng;
+  rng = CreateObject<UniformRandomVariable> (); // Генератор случайных чисел.
 
   CommandLine cmd;
   cmd.Parse (argc, argv);
@@ -61,7 +70,7 @@ main (int argc, char *argv[])
   //LogComponentEnable ("LorawanMacHeader", LOG_LEVEL_ALL);
   //LogComponentEnable ("LoraFrameHeader", LOG_LEVEL_ALL);
   //LogComponentEnable ("PeriodicSender", LOG_LEVEL_ALL);
-   LogComponentEnable ("LoraPacketTracker", LOG_LEVEL_ALL);
+//   LogComponentEnable ("LoraPacketTracker", LOG_LEVEL_ALL);
   LogComponentEnableAll (LOG_PREFIX_FUNC);
   LogComponentEnableAll (LOG_PREFIX_NODE);
   LogComponentEnableAll (LOG_PREFIX_TIME);
@@ -98,7 +107,7 @@ main (int argc, char *argv[])
    *  Create End Devices  *
    ************************/
   NodeContainer nodes;
-  nodes.Create (10);
+  nodes.Create (60);
 
   // Create the LoraNetDevices of the end devices
   uint8_t nwkId = 54;
@@ -123,35 +132,52 @@ main (int argc, char *argv[])
    *  Mobility  *
    ************************/
   MobilityHelper mobility;
-  mobility.SetPositionAllocator ("ns3::GridPositionAllocator", "MinX", DoubleValue (0.0),
-                                 "MinY", DoubleValue (0.0), "DeltaX", DoubleValue (20.0),
-                                 "DeltaY", DoubleValue (10.0), "GridWidth",
-                                 UintegerValue (3), "LayoutType",
-                                 StringValue ("RowFirst"));
+//  mobility.SetPositionAllocator ("ns3::GridPositionAllocator", "MinX", DoubleValue (0.0),
+//                                 "MinY", DoubleValue (0.0), "DeltaX", DoubleValue (20.0),
+//                                 "DeltaY", DoubleValue (10.0), "GridWidth",
+//                                 UintegerValue (3), "LayoutType",
+//                                 StringValue ("RowFirst"));
 
-  //mobility.SetMobilityModel("ns3::WaypointMobilityModel");
-  mobility.Install (nodes);
+  mobility.SetMobilityModel("ns3::WaypointMobilityModel");
+  mobility.Install(nodes);
 
-  /*********************************************
-   *  Install applications on the end devices  *
-   *********************************************/
+     for (int i = 0; i < 60; ++i)
+     {
+       Ptr<WaypointMobilityModel> ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(i)->GetObject<MobilityModel>());
 
-  Time appStopTime = Seconds (6000);
-  PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
-  appHelper.SetPeriod (Seconds (1));
-  appHelper.SetPacketSize (33);
-  Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
-      "Min", DoubleValue (0), "Max", DoubleValue (10));
-  ApplicationContainer appContainer = appHelper.Install (nodes);
+       float time = 0.0;
 
-  appContainer.Start (Seconds (0));
-  appContainer.Stop (appStopTime);
+       double w = ((float)rng->GetInteger (54, 66)/(3600 * RADIUS / 1000));
+
+       /*********************************************
+        *  Install applications on the end devices  *
+        *********************************************/
+        Time appStopTime = Seconds (6000);
+        PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
+        appHelper.SetPeriod (Seconds (10));
+        appHelper.SetPacketSize (23);
+        Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
+        "Min", DoubleValue (0), "Max", DoubleValue (10));
+        ApplicationContainer appContainer = appHelper.Install (nodes.Get(i));
+
+        appContainer.Start (Seconds (i * 60));
+        appContainer.Stop (appStopTime);
+
+
+       for (; time <=  TIME * 3600; time += 60)
+        {
+          if ((time - i* 60) >= 0)
+            ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time),Vector(RADIUS*cos(w*(time - i* 60)), RADIUS*sin(w*(time-i*60)),0)));
+        }
+
+     }
+
 
   ////////////////
   // Simulation //
   ////////////////
 
-  Simulator::Stop (Seconds (60));
+     Simulator::Stop (Hours (TIME));
 
   NS_LOG_INFO("Running simulation...");
   Simulator::Run ();
@@ -163,9 +189,9 @@ main (int argc, char *argv[])
   ///////////////////////////
   NS_LOG_INFO("Computing performance metrics...");
 
-  LoraPacketTracker &tracker = helper.GetPacketTracker ();
-  std::cout << tracker.CountMacPacketsGlobally (Seconds (0), appStopTime + Hours (1))
-                << std::endl;
+//  LoraPacketTracker &tracker = helper.GetPacketTracker ();
+//  std::cout << tracker.CountMacPacketsGlobally (Seconds (0), appStopTime + Hours (1))
+//                << std::endl;
 
   return 0;
 }

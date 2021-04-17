@@ -295,11 +295,11 @@ main (int argc, char *argv[])
 
   // Create a NS for the network
   nsHelper.SetEndDevices (endDevices);
-  nsHelper.SetGateways (gateways);
+//  nsHelper.SetGateways (gateways);
   nsHelper.Install (networkServer);
 
   //Create a forwarder for each gateway
-  forHelper.Install (gateways);
+//  forHelper.Install (gateways);
 
   ////////////////
   // Simulation //
