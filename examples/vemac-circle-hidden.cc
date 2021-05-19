@@ -1,7 +1,5 @@
 /*
- * This script simulates a complex scenario with multiple gateways and end
- * devices. The metric of interest for this script is the throughput of the
- * network.
+ *  Симуляция скрытого узла
  */
 
 #include "ns3/end-device-lora-phy.h"
@@ -36,8 +34,8 @@
 #include "ns3/random-variable-stream.h"
 
 #define PI 3.14159265
-#define TIME 5
-#define RADIUS 5000
+#define TIME 2
+#define RADIUS 6000
 
 
 using namespace ns3;
@@ -107,7 +105,7 @@ main (int argc, char *argv[])
    *  Create End Devices  *
    ************************/
   NodeContainer nodes;
-  nodes.Create (3);
+  nodes.Create (62);
 
   // Create the LoraNetDevices of the end devices
   uint8_t nwkId = 54;
@@ -137,30 +135,64 @@ main (int argc, char *argv[])
   mobility.Install(nodes);
 
   Ptr<WaypointMobilityModel> ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(0)->GetObject<MobilityModel>());
-  ueWaypointMobility->AddWaypoint(Waypoint(Seconds(0),Vector(RADIUS*cos(PI), RADIUS*sin(PI),0)));
-
-  ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(1)->GetObject<MobilityModel>());
-  ueWaypointMobility->AddWaypoint(Waypoint(Seconds(0),Vector(RADIUS*cos(3*PI/4), RADIUS*sin(3*PI/4),0)));
-
-  ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(2)->GetObject<MobilityModel>());
     ueWaypointMobility->AddWaypoint(Waypoint(Seconds(0),Vector(RADIUS*cos(5*PI/6), RADIUS*sin(5*PI/6),0)));
+
+    Time appStopTime = Seconds (TIME * 3600);
+    PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
+    appHelper.SetPeriod (Seconds (1));
+    appHelper.SetPacketSize (33);
+    Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
+    "Min", DoubleValue (0), "Max", DoubleValue (10));
+    ApplicationContainer appContainer = appHelper.Install (nodes.Get(0));
+
+    appContainer.Start (Seconds (0));
+    appContainer.Stop (appStopTime);
+
+    ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(1)->GetObject<MobilityModel>());
+      ueWaypointMobility->AddWaypoint(Waypoint(Seconds(0),Vector(RADIUS*cos(2*PI/3), RADIUS*sin(2*PI/3),0)));
+
+      appHelper.SetPeriod (Seconds (1));
+             appHelper.SetPacketSize (33);
+             appContainer = appHelper.Install (nodes.Get(1));
+
+             appContainer.Start (Seconds (0));
+             appContainer.Stop (appStopTime);
+
+             for (int i = 2; i < 62; ++i)
+                      {
+                        Ptr<WaypointMobilityModel> ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(i)->GetObject<MobilityModel>());
+
+                        float time = 0.0;
+
+                        double w = ((float)rng->GetInteger (54, 66)/(3600 * RADIUS / 1000));
+
+                        /*********************************************
+                         *  Install applications on the end devices  *
+                         *********************************************/
+                         Time appStopTime = Seconds (TIME * 3600);
+                         PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
+                         appHelper.SetPeriod (Seconds (1));
+                         appHelper.SetPacketSize (33);
+                         Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
+                         "Min", DoubleValue (0), "Max", DoubleValue (10));
+                         ApplicationContainer appContainer = appHelper.Install (nodes.Get(i));
+
+                         appContainer.Start (Seconds (i * 60));
+                         appContainer.Stop (appStopTime);
+
+
+                        for (; time <=  TIME * 3600; time += 60)
+                         {
+                           if ((time - i* 60) >= 0)
+                             ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time),Vector(RADIUS*cos(w*(time - i* 60)), RADIUS*sin(w*(time-i*60)),0)));
+                         }
+
+                      }
 
 
 /*********************************************
    *  Install applications on the end devices  *
    *********************************************/
-
-
-  Time appStopTime = Seconds (TIME*3600);
-  PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
-  appHelper.SetPeriod (Seconds (10));
-  appHelper.SetPacketSize (23);
-  Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
-  "Min", DoubleValue (0), "Max", DoubleValue (10));
-  ApplicationContainer appContainer = appHelper.Install (nodes);
-
-  appContainer.Start (Seconds (10));
-  appContainer.Stop (appStopTime);
 
   ////////////////
   // Simulation //

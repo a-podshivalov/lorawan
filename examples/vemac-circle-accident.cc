@@ -1,7 +1,5 @@
 /*
- * This script simulates a complex scenario with multiple gateways and end
- * devices. The metric of interest for this script is the throughput of the
- * network.
+ * Симуляция, где один узел неподвижен, другие 60 узлов выезжают из другого края круга
  */
 
 #include "ns3/end-device-lora-phy.h"
@@ -36,7 +34,7 @@
 #include "ns3/random-variable-stream.h"
 
 #define PI 3.14159265
-#define TIME 5
+#define TIME 2
 #define RADIUS 5000
 
 
@@ -139,8 +137,8 @@ main (int argc, char *argv[])
     ueWaypointMobility->AddWaypoint(Waypoint(Seconds(0),Vector(RADIUS*cos(PI), RADIUS*sin(PI),0)));
     Time appStopTime = Seconds (TIME*3600);
     PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
-    appHelper.SetPeriod (Seconds (10));
-    appHelper.SetPacketSize (23);
+    appHelper.SetPeriod (Seconds (1));
+    appHelper.SetPacketSize (33);
     Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
     "Min", DoubleValue (0), "Max", DoubleValue (10));
     ApplicationContainer appContainer = appHelper.Install (nodes.Get(0));
@@ -158,8 +156,8 @@ main (int argc, char *argv[])
 
         Time appStopTime = Seconds (TIME*3600);
         PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
-        appHelper.SetPeriod (Seconds (10));
-        appHelper.SetPacketSize (23);
+        appHelper.SetPeriod (Seconds (1));
+        appHelper.SetPacketSize (33);
         Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
         "Min", DoubleValue (0), "Max", DoubleValue (10));
         ApplicationContainer appContainer = appHelper.Install (nodes.Get(i));
@@ -190,8 +188,6 @@ main (int argc, char *argv[])
   ///////////////////////////
   // Print results to file //
   ///////////////////////////
-  NS_LOG_INFO("Computing performance metrics...");
-
 //  LoraPacketTracker &tracker = helper.GetPacketTracker ();
 //  std::cout << tracker.CountMacPacketsGlobally (Seconds (0), appStopTime + Hours (1))
 //                << std::endl;

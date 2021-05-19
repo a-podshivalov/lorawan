@@ -1,5 +1,5 @@
 /*
- * Движение по окружности 60-ти узлов
+ * Проверка дальности работы протокола
  */
 
 #include "ns3/end-device-lora-phy.h"
@@ -35,7 +35,7 @@
 
 #define PI 3.14159265
 #define TIME 2
-#define RADIUS 5000
+#define RADIUS 6000
 
 
 using namespace ns3;
@@ -105,7 +105,7 @@ main (int argc, char *argv[])
    *  Create End Devices  *
    ************************/
   NodeContainer nodes;
-  nodes.Create (60);
+  nodes.Create (2);
 
   // Create the LoraNetDevices of the end devices
   uint8_t nwkId = 54;
@@ -130,46 +130,33 @@ main (int argc, char *argv[])
    *  Mobility  *
    ************************/
   MobilityHelper mobility;
-//  mobility.SetPositionAllocator ("ns3::GridPositionAllocator", "MinX", DoubleValue (0.0),
-//                                 "MinY", DoubleValue (0.0), "DeltaX", DoubleValue (20.0),
-//                                 "DeltaY", DoubleValue (10.0), "GridWidth",
-//                                 UintegerValue (3), "LayoutType",
-//                                 StringValue ("RowFirst"));
 
   mobility.SetMobilityModel("ns3::WaypointMobilityModel");
   mobility.Install(nodes);
 
-     for (int i = 0; i < 60; ++i)
-     {
-       Ptr<WaypointMobilityModel> ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(i)->GetObject<MobilityModel>());
+  Ptr<WaypointMobilityModel> ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(0)->GetObject<MobilityModel>());
+      ueWaypointMobility->AddWaypoint(Waypoint(Seconds(0),Vector(2922, 1000, 0)));
 
-       float time = 0.0;
-
-       double w = ((float)rng->GetInteger (54, 66)/(3600 * RADIUS / 1000));
-
-       /*********************************************
-        *  Install applications on the end devices  *
-        *********************************************/
-        Time appStopTime = Seconds (TIME * 3600);
-        PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
-        appHelper.SetPeriod (Seconds (1));
-        appHelper.SetPacketSize (33);
-        Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
-        "Min", DoubleValue (0), "Max", DoubleValue (10));
-        ApplicationContainer appContainer = appHelper.Install (nodes.Get(i));
-
-        appContainer.Start (Seconds (i * 60));
-        appContainer.Stop (appStopTime);
+      ueWaypointMobility = DynamicCast<WaypointMobilityModel>( nodes.Get(1)->GetObject<MobilityModel>());
+      ueWaypointMobility->AddWaypoint(Waypoint(Seconds(0),Vector(0, 1000, 0)));
 
 
-       for (; time <=  TIME * 3600; time += 60)
-        {
-          if ((time - i* 60) >= 0)
-            ueWaypointMobility->AddWaypoint(Waypoint(Seconds(time),Vector(RADIUS*cos(w*(time - i* 60)), RADIUS*sin(w*(time-i*60)),0)));
-        }
 
-     }
+/*********************************************
+   *  Install applications on the end devices  *
+   *********************************************/
 
+
+  Time appStopTime = Seconds (TIME*3600);
+  PeriodicSenderHelper appHelper = PeriodicSenderHelper ();
+  appHelper.SetPeriod (Seconds (1));
+  appHelper.SetPacketSize (33);
+  Ptr<RandomVariableStream> rv = CreateObjectWithAttributes<UniformRandomVariable> (
+  "Min", DoubleValue (0), "Max", DoubleValue (10));
+  ApplicationContainer appContainer = appHelper.Install (nodes);
+
+  appContainer.Start (Seconds (10));
+  appContainer.Stop (appStopTime);
 
   ////////////////
   // Simulation //
